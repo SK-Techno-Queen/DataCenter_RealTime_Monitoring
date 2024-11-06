@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert Levels</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Data Center Alert Levels</h1>
+    <div id="alert-container">
+        <!-- 실시간 경고 수준이 여기에 표시됩니다 -->
+    </div>
+
+    <script>
+        // SSE 이벤트 소스를 설정하여 /stream 엔드포인트에서 데이터를 받아옵니다.
+        const eventSource = new EventSource('/stream');
+
+        // 데이터가 도착할 때마다 실행
+        eventSource.onmessage = function(event) {
+            const container = document.getElementById('alert-container');
+
+            // level 값을 나타내는 div 생성
+            const levelDiv = document.createElement('div');
+            levelDiv.className = `alert ${event.data.toLowerCase()}`;  // 경고 수준에 따라 클래스 적용
+            levelDiv.textContent = event.data;
+
+            // 컨테이너에 추가하여 표시
+            container.appendChild(levelDiv);
+
+            // 너무 많은 경고가 쌓이지 않도록 제한 (예: 최대 20개만 유지)
+            if (container.childNodes.length > 20) {
+                container.removeChild(container.firstChild);
+            }
+        };
+    </script>
+</body>
+</html>
